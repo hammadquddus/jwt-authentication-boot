@@ -26,7 +26,7 @@ public class RestRoomsController {
 
 	@GetMapping
 	public List<Room> getAllRooms(HttpServletResponse response) throws InterruptedException {
-		Thread.sleep(3000);
+//		Thread.sleep(3000);
 		System.out.println("Get all rooms rest endpoint called..");
 		return roomRepository.findAll();
 //		response.setStatus(402);
