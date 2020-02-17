@@ -1,5 +1,6 @@
 package com.virtualpairprogrammers.roombooking.services;
 
+import com.virtualpairprogrammers.roombooking.RoombookingApplication;
 import com.virtualpairprogrammers.roombooking.data.BookingRepository;
 import com.virtualpairprogrammers.roombooking.data.RoomRepository;
 import com.virtualpairprogrammers.roombooking.data.UserRepository;
@@ -11,6 +12,7 @@ import com.virtualpairprogrammers.roombooking.model.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,6 +29,9 @@ public class DataInitialization {
     @Autowired
     BookingRepository bookingRepository;
 
+    @Autowired    
+    BCryptPasswordEncoder bCryptPasswordEncoder;
+    
     @EventListener(ApplicationReadyEvent.class)
     public void initData() {
         List<Room> rooms = roomRepository.findAll();
@@ -46,9 +51,22 @@ public class DataInitialization {
             confRoom.setCapacity(new LayoutCapacity(Layout.USHAPE,40));
             roomRepository.save(confRoom);
 
-            User user = new User("matt", "secret");
-            userRepository.save(user);
+            
+            User user = new User("matt", bCryptPasswordEncoder.encode("maradona"));
+            user.addAuthority("ROLE_ADMIN");
+//            user.addAuthority("ROLE_USER");
+            user.addAuthority("ROLE_COLLABORATOR");
+//            user.addAuthority("ADMIN");
+//            user.addAuthority("USER");
+//            user.addAuthority("COLLABORATOR");
 
+            userRepository.save(user);
+            
+            User user2 = new User("hammad", bCryptPasswordEncoder.encode("ronaldo"));
+            user2.addAuthority("ROLE_USER");
+            userRepository.save(user2);
+            
+            
             Booking booking1 = new Booking();
             booking1.setDate(new java.sql.Date(new java.util.Date().getTime()));
             booking1.setStartTime(java.sql.Time.valueOf("11:00:00"));
@@ -70,6 +88,16 @@ public class DataInitialization {
             booking2.setRoom(redRoom);
             booking2.setUser(user);
             bookingRepository.save(booking2);
+            
+            
+            RoombookingApplication.logger.info("# of users: {}", userRepository.count());
+
+            RoombookingApplication.logger.info("All users unsorted:");
+	        List<User> users = userRepository.findAll();
+	        RoombookingApplication.logger.info("{}", users);
+
+	        RoombookingApplication.logger.info("------------------------");
+
         }
     }
 }

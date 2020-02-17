@@ -7,25 +7,35 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
 public class BasicAuthConfig extends  WebSecurityConfigurerAdapter{
 
+	@Autowired
+	UserDetailsService userDetailsService;
+	
+	@Autowired
+	BCryptPasswordEncoder bCryptPasswordEncoder;
+	
  	@Autowired
  	protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
- 		auth
+ 		auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
+ 		
  		// enable in memory based authentication with a user named "user" and "admin"
- 		.inMemoryAuthentication()
- 			.withUser("matt").password("{noop}secret").authorities("ROLE_ADMIN");
+// 		.inMemoryAuthentication()
+// 			.withUser("matt").password("{noop}secret").authorities("ROLE_ADMIN");
  	}
 
  	@Override
  	protected void configure(HttpSecurity http) throws Exception {
- 		http
+ 		http.csrf().disable()
  			.authorizeRequests()
  			.antMatchers(HttpMethod.OPTIONS, "/api/basicAuth/**").permitAll()
  			.antMatchers("/api/basicAuth/**").hasRole("ADMIN")
+ 			.antMatchers(HttpMethod.GET, "/api/rooms/**").hasRole("USER")
  			.and().httpBasic();
  				
  	}

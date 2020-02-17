@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,13 +26,21 @@ public class RestUsersController {
 	@Autowired
 	private UserRepository userRepository;
 	
+	@Autowired
+	private BCryptPasswordEncoder bCryptPasswordEncoder;
+	
 	@GetMapping()
 	public List<AngularUser> getAllUsers() throws InterruptedException{
-//		Thread.sleep(2000);
 		System.out.println("Get all users called..");
 		return userRepository.findAll().parallelStream().map( user -> new AngularUser(user)).collect(Collectors.toList());
 	}
-	
+
+	@GetMapping("/passwords")
+	public List<User> getAllUsersWithPasswords() throws InterruptedException{
+		System.out.println("Get all users called..");
+		return userRepository.findAll();
+	}
+
 	@GetMapping("/{id}")
 	public AngularUser getUser(@PathVariable("id") Long id) {
 		System.out.println("Got a request for user " + id);
@@ -40,27 +49,26 @@ public class RestUsersController {
 	
 	@PutMapping()
 	public AngularUser updateUser(@RequestBody AngularUser updatedUser) throws InterruptedException {
-//		Thread.sleep(1000);
-//		throw new RuntimeException("something went wrong");
 		User originalUser = userRepository.findById(updatedUser.getId()).get();
 		originalUser.setName(updatedUser.getName());
 		return new AngularUser(userRepository.save(originalUser));
 	}
 	
+//	@PostMapping()
+//	public AngularUser newUser(@RequestBody AngularUser user) {		
+//		User newUser =  new User();
+//		newUser.setName(user.getName());
+//		newUser.setPassword("secret");
+//		
+//		return new AngularUser(userRepository.save(newUser));
+//	}
+
 	@PostMapping()
-	public AngularUser newUser(@RequestBody AngularUser user) {
-//		if(user.getId() == null) {
-//			List<AngularUser> allUsers = getAllUsers();
-//			Long id = allUsers.parallelStream().max(Comparator.comparingLong(AngularUser::getId)).get().getId();
-//			user.setId(id++);
-//		}
-		
-		User newUser =  new User();
-		newUser.setName(user.getName());
-		newUser.setPassword("secret");
-		
-		return new AngularUser(userRepository.save(newUser));
+	public User newUser(@RequestBody User user) {		
+		user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+		return userRepository.save(user);
 	}
+	
 	
 	@DeleteMapping("/{id}")
 	public void deleteUser(@PathVariable("id") Long id) {
