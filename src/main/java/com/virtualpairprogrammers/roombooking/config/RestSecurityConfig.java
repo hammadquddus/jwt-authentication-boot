@@ -12,7 +12,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity
-public class BasicAuthConfig extends  WebSecurityConfigurerAdapter{
+public class RestSecurityConfig extends  WebSecurityConfigurerAdapter{
 
 	@Autowired
 	UserDetailsService userDetailsService;

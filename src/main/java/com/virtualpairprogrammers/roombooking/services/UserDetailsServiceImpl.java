@@ -22,20 +22,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		
 		RoombookingApplication.logger.info(user.toString());
 		
-		System.out.println(user);
-
-		System.out.println("Printing granted authorities");
-		System.out.println(user.getGrantedAuthorities());
-		
-		
 		if(user == null) {
 			throw new UsernameNotFoundException(username);
 		}
 		
 		RoombookingApplication.logger.info(user.getGrantedAuthorities().toString());
-		System.out.println("Printing granted authorities");
-		System.out.println(user.getGrantedAuthorities());
-		
+
 		return new org.springframework.security.core.userdetails.User(user.getName(), user.getPassword(), user.getGrantedAuthorities());
 	}
 

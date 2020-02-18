@@ -20,6 +20,8 @@ import org.springframework.context.annotation.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 public class User {
 
@@ -30,6 +32,7 @@ public class User {
 	@NotBlank(message = "name cannot be blank.")
 	private String name;
 
+	@JsonIgnore
 	@NotBlank(message = "password cannot be blank.")
 	private String password;
 
