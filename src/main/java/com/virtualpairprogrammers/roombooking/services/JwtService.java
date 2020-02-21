@@ -6,14 +6,20 @@ import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator.Builder;
 import com.auth0.jwt.algorithms.Algorithm;
 
 @Service
@@ -35,12 +41,23 @@ public class JwtService {
 		
 	}
 	
-	public String generateToken(String userName, String role) {
-		return JWT.create()
-			.withClaim("user",userName)
-			.withClaim("role", role)
-			.withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
-			.sign(Algorithm.RSA256(this.publicKey,this.privateKey));
+	public String generateToken(String userName, Collection<GrantedAuthority> authorities) {
+		Builder tokenBuilder = JWT.create();
+				tokenBuilder.withClaim("user",userName);
+				
+				
+				String[] rolesArray = new String[authorities.size()];
+				
+				for(int i=0; i < authorities.size(); i++) {
+					rolesArray[i] = authorities.toArray()[i].toString().substring(5);
+				}
+
+				System.out.println(rolesArray);
+				
+				tokenBuilder.withArrayClaim("roles", rolesArray);
+				
+				return tokenBuilder.withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
+							.sign(Algorithm.RSA256(this.publicKey,this.privateKey));
 		
 	}
 	

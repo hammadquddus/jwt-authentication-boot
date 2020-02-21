@@ -1,6 +1,7 @@
 package com.virtualpairprogrammers.roombooking.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -14,6 +15,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 public class RestSecurityConfig extends  WebSecurityConfigurerAdapter{
 
+	@Bean
+	public BCryptPasswordEncoder bCryptPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+	
+	
 	@Autowired
 	UserDetailsService userDetailsService;
 	
@@ -34,9 +41,18 @@ public class RestSecurityConfig extends  WebSecurityConfigurerAdapter{
  		http.csrf().disable()
  			.authorizeRequests()
  			.antMatchers(HttpMethod.OPTIONS, "/api/basicAuth/**").permitAll()
- 			.antMatchers("/api/basicAuth/**").hasRole("ADMIN")
+ 			.antMatchers("/api/basicAuth/**").hasAnyRole("ADMIN","USER")
  			.antMatchers(HttpMethod.GET, "/api/rooms/**").hasRole("USER")
  			.and().httpBasic();
+ 		
+ 		
+ 		
+		http
+		.csrf().disable()
+		.authorizeRequests()
+		.antMatchers("/api/users/**").hasRole("ADMIN")
+		.and()
+		.addFilter(new JWTAuthorizationFilter(authenticationManager()));
  				
  	}
 

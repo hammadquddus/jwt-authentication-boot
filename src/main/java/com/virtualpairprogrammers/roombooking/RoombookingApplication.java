@@ -20,12 +20,6 @@ public class RoombookingApplication {
 	public static final Logger logger = LoggerFactory.getLogger(RoombookingApplication.class);
 
 	
-	@Bean
-	public BCryptPasswordEncoder bCryptPasswordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-	
-
 //	Added the code below to Application.java and for now it works, default on port 8082, starts with spring app. It doesn`t hit the spot but for dev purposes it is all ok.
 	@Bean
 	org.h2.tools.Server h2Server() {

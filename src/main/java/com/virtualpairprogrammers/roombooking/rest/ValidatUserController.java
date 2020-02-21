@@ -1,5 +1,6 @@
 package com.virtualpairprogrammers.roombooking.rest;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import org.springframework.boot.json.BasicJsonParser;
 import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.json.JsonParser;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +37,10 @@ public class ValidatUserController {
 		User currentUser = (User) auth.getPrincipal();
 		
 		String userName = currentUser.getUsername();
-		String role = currentUser.getAuthorities().toArray()[0].toString().substring(5);
-		
-		String token = jwtService.generateToken(userName, role);
+
+		Collection<GrantedAuthority> authorities = currentUser.getAuthorities();
+				
+		String token = jwtService.generateToken(userName, authorities);
 				
 		Map<String,String> results = new HashMap<>();
 		results.put("result", "Bearer " + token);
